@@ -10,11 +10,25 @@ import AppDesign
 import AppNavigationModule
 
 struct ContentView: View {
+    @State var displayStyle: BottomSheetDisplayType = .collapsed
     @ObservedObject var vm = ContentViewModel()
     
     var body: some View {
-        AppCoordinatorIOS13 {
-            HomeCoordinator()
+        ZStack {
+            AppCoordinatorIOS13 {
+                HomeCoordinator()
+            }
+            
+            AppButtomSheetView(displayType: $displayStyle,
+                               viewModel: BaseAppButtomSheetViewModel(bottomSheepPadding: 120)
+            ) {
+                Color.blue
+            } header: {
+                ZStack {
+                    Color.red
+                }.frame(height: 100)
+            }
+
         }
     }
 }

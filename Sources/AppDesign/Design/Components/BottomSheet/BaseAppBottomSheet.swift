@@ -45,6 +45,7 @@ public enum SlideMovement {
 public class BaseAppButtomSheetViewModel: ObservableObject {
     @Published public var steps: [BottomSheetDisplayType]
     @Published public var maxHeight: CGFloat
+    @Published public var bottomSheepPadding: CGFloat
     @Published public var translationHeight: CGFloat
     @Published public var disableDragIndicatorView: Bool
     @Published public var disableDragToHideSheet: Bool
@@ -55,6 +56,7 @@ public class BaseAppButtomSheetViewModel: ObservableObject {
     
     public init(steps: [BottomSheetDisplayType] = [],
                 maxHeight: CGFloat = UIScreen.main.bounds.height - 60,
+                bottomSheepPadding: CGFloat = 0,
                 translationHeight: CGFloat = 100,
                 disableDragToHideSheet: Bool = false,
                 disableDragToExpanded: Bool = false,
@@ -70,6 +72,7 @@ public class BaseAppButtomSheetViewModel: ObservableObject {
         self.disableDragIndicatorView = disableDragIndicatorView
         self.dragIndicatorConfig = dragIndicatorConfig
         self.disableDragIndicatorTapGesture = disableDragIndicatorTapGesture
+        self.bottomSheepPadding = bottomSheepPadding
     }
 }
 
@@ -86,13 +89,15 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     private var offset: CGFloat {
         switch displayType {
         case .collapsed:
-            return viewModel.maxHeight - headerHeight
+            let offset =  viewModel.maxHeight - headerHeight - viewModel.bottomSheepPadding
+            return offset < 0 ? 0 : offset
         case .expanded :
             return 0
         case .expandFromTop(let topOffset) :
-            return topOffset
+            let offset =  topOffset - viewModel.bottomSheepPadding
+            return offset < 0 ? 0 : offset
         case .expandFromBottom(let bottomHeight) :
-            let offset = viewModel.maxHeight - headerHeight - bottomHeight
+            let offset = viewModel.maxHeight - headerHeight - bottomHeight - viewModel.bottomSheepPadding
             return offset < 0 ? 0 : offset
         case .hidden :
             return viewModel.maxHeight
@@ -149,7 +154,11 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
                     .background(GeometryReader { geometry in
                         Color.clear.preference(key: HeaderHeightKey.self, value: geometry.size.height)
                     })
-                self.content.id("APP_BOTTOM_SHEET_CONTENT")
+                self.content
+                    .id("APP_BOTTOM_SHEET_CONTENT")
+                    .opacity(displayType == .collapsed ? 0 : 1)
+//                    .animation(/*@START_MENU_TOKEN@*/.easeIn/*@END_MENU_TOKEN@*/, value: displayType == .collapsed)
+                Spacer().frame(height: viewModel.bottomSheepPadding)
             }
             .onPreferenceChange(HeaderHeightKey.self) { height in
                 self.headerHeight = height
@@ -159,7 +168,7 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
             .cornerRadius(viewModel.dragIndicatorConfig.topCornerRadius)
             .frame(height: geometry.size.height, alignment: .bottom)
             .offset(y: max(self.offset + self.translation, -30))
-            .animation(.bouncy(extraBounce: 0.15))
+            .animation(.bouncy(extraBounce: 0.09))
             .gesture(
                 DragGesture().updating(self.$translation) { value, state, _ in
                     state = value.translation.height

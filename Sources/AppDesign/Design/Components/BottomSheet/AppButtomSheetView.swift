@@ -16,8 +16,7 @@ extension View {
                 GeometryReader { _ in
                     self.padding(geometry.safeAreaInsets)
                     BaseAppButtomSheet(displayType: displayType, viewModel: viewModel, content: content, header: header)
-                } .background(Color.green)
-                    .edgesIgnoringSafeArea(.all)
+                }.edgesIgnoringSafeArea(.all)
             }
         
     }

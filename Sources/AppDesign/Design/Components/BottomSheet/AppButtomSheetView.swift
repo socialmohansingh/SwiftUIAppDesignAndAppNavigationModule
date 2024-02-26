@@ -29,7 +29,7 @@ public struct AppButtomSheetView<Header: View, Content: View>: View {
     @ViewBuilder let content: () -> Content
     @ViewBuilder let header: () -> Header
     
-    init(displayType: BottomSheetDisplayType,
+    public init(displayType: BottomSheetDisplayType,
          viewModel: BaseAppButtomSheetViewModel = BaseAppButtomSheetViewModel(),
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder header: @escaping () -> Header) {

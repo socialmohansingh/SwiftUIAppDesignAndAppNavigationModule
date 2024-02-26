@@ -24,12 +24,12 @@ extension View {
 }
 
 public struct AppButtomSheetView<Header: View, Content: View>: View {
-    @State var displayType: BottomSheetDisplayType = .collapsed
+    var displayType: Binding<BottomSheetDisplayType> = .constant(.collapsed)
     @ObservedObject var viewModel: BaseAppButtomSheetViewModel
     @ViewBuilder let content: () -> Content
     @ViewBuilder let header: () -> Header
     
-    public init(displayType: BottomSheetDisplayType,
+    public init(displayType: Binding<BottomSheetDisplayType>,
          viewModel: BaseAppButtomSheetViewModel = BaseAppButtomSheetViewModel(),
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder header: @escaping () -> Header) {
@@ -43,7 +43,7 @@ public struct AppButtomSheetView<Header: View, Content: View>: View {
         GeometryReader { geometry in
             GeometryReader { _ in
                 Color.clear.padding(geometry.safeAreaInsets)
-                BaseAppButtomSheet(displayType: $displayType, viewModel: viewModel,
+                BaseAppButtomSheet(displayType: displayType, viewModel: viewModel,
                                    content: content, header: header)
             }.edgesIgnoringSafeArea(.all)
             
@@ -58,7 +58,7 @@ public struct AppButtomSheetView<Header: View, Content: View>: View {
         Button("Title") {
             print("asdf")
         }
-        AppButtomSheetView(displayType: .collapsed, viewModel: BaseAppButtomSheetViewModel(steps: [.expandFromBottom(200), .expandFromBottom(400),.expandFromTop(100)], disableDragIndicatorView: false)) {
+        AppButtomSheetView(displayType: .constant(.collapsed), viewModel: BaseAppButtomSheetViewModel(steps: [.expandFromBottom(200), .expandFromBottom(400),.expandFromTop(100)], disableDragIndicatorView: false)) {
             ZStack {
                 Color.red
             }

@@ -4,6 +4,8 @@
 import SwiftUI
 
 public class AppDesign: ObservableObject {
+    static public var defaultScreenDesignSize: CGSize = CGSize(width: 375.0, height: 812.0)
+    
     @Published public var theme = AppTheme()
     @Published public var localization = AppLocalization()
     @Published var refreshId = UUID()

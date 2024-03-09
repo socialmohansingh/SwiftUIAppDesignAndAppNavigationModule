@@ -12,7 +12,7 @@ import AppNavigationModule
 struct ContentView: View {
     @State var displayStyle: BottomSheetDisplayType = .collapsed
     @ObservedObject var vm = ContentViewModel()
-    
+    @State var text = ""
     var body: some View {
         ZStack {
             AppCoordinatorIOS13 {
@@ -26,10 +26,12 @@ struct ContentView: View {
             } header: {
                 ZStack {
                     Color.red
+                    TextField("Mohan Singh", text: $text)
+                    Spacer()
                 }.frame(height: 100)
-            }
+            }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
 
-        }
+        }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
     }
 }
 

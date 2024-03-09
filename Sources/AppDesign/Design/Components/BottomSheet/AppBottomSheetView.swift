@@ -9,7 +9,7 @@ import SwiftUI
 
 extension View {
    @ViewBuilder public func appBottomSheet<Content: View, Header: View>(displayType: Binding<BottomSheetDisplayType>,
-                        viewModel: BaseAppButtomSheetViewModel = BaseAppButtomSheetViewModel(),
+                        viewModel: BaseAppBottomSheetViewModel = BaseAppBottomSheetViewModel(),
                         @ViewBuilder content: @escaping () -> Content,
                         @ViewBuilder header: @escaping () -> Header) -> some View {
             GeometryReader { geometry in
@@ -22,27 +22,32 @@ extension View {
     }
 }
 
-public struct AppButtomSheetView<Header: View, Content: View>: View {
+public struct AppBottomSheetView<Header: View, Content: View>: View {
     var displayType: Binding<BottomSheetDisplayType> = .constant(.collapsed)
-    @ObservedObject var viewModel: BaseAppButtomSheetViewModel
+    @ObservedObject var viewModel: BaseAppBottomSheetViewModel
     @ViewBuilder let content: () -> Content
     @ViewBuilder let header: () -> Header
+    let delegate: BaseAppBottomSheetProtocol?
     
     public init(displayType: Binding<BottomSheetDisplayType>,
-         viewModel: BaseAppButtomSheetViewModel = BaseAppButtomSheetViewModel(),
+         viewModel: BaseAppBottomSheetViewModel = BaseAppBottomSheetViewModel(),
+        delegate: BaseAppBottomSheetProtocol? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder header: @escaping () -> Header) {
         self.displayType = displayType
         self.viewModel = viewModel
         self.content = content
         self.header = header
+        self.delegate = delegate
     }
     
     public var body: some View {
         GeometryReader { geometry in
             GeometryReader { _ in
                 Color.clear.padding(geometry.safeAreaInsets)
-                BaseAppButtomSheet(displayType: displayType, viewModel: viewModel,
+                BaseAppButtomSheet(displayType: displayType, 
+                                   viewModel: viewModel,
+                                   delegate: delegate,
                                    content: content, header: header)
             }.edgesIgnoringSafeArea(.all)
             
@@ -57,32 +62,33 @@ public struct AppButtomSheetView<Header: View, Content: View>: View {
         Button("Title") {
             print("asdf")
         }
-        AppButtomSheetView(displayType: .constant(.collapsed), viewModel: BaseAppButtomSheetViewModel(steps: [.expandFromBottom(200), .expandFromBottom(400),.expandFromTop(100)], disableDragIndicatorView: false)) {
+        AppBottomSheetView(displayType: .constant(.collapsed), viewModel: BaseAppBottomSheetViewModel(
+            disableDragIndicatorView: false, dragIndicatorConfig: BottomSheetConfiguration(backgroundColor: .green))) {
             ZStack {
                 Color.red
             }
         } header: {
             ZStack {
-                Color.blue
-            }.frame(height: 150)
+                Color.blue.frame(height: 80)
+            }.frame(height: 80)
         }
-    }
+    }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
 
 }
-
-#Preview {
-    ZStack {
-        Color.red.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/ ).appBottomSheet(displayType: .constant(.collapsed), viewModel: BaseAppButtomSheetViewModel(steps: [.expandFromBottom(200), .expandFromBottom(400),.expandFromTop(100)])) {
-            VStack {
-                Text("asdf")
-            }
-        } header: {
-            VStack {
-                Text("111")
-                Spacer()
-            }.frame(height: 150)
-        }
-
-    }
-
-}
+//
+//#Preview {
+//    ZStack {
+//        Color.red.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/ ).appBottomSheet(displayType: .constant(.collapsed), viewModel: BaseAppBottomSheetViewModel(steps: [.expandFromBottom(200), .expandFromBottom(400),.expandFromTop(100)])) {
+//            VStack {
+//                Text("asdf")
+//            }
+//        } header: {
+//            VStack {
+//                Text("111")
+//                Spacer()
+//            }.frame(height: 150)
+//        }
+//
+//    }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+//
+//}

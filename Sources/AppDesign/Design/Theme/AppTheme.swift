@@ -29,6 +29,7 @@ extension ThemeType {
         @Environment(\.colorScheme) var colorScheme
         switch self {
         case .system:
+            print("system SCHEME: \(colorScheme)")
             return colorScheme
         case .light:
             return .light

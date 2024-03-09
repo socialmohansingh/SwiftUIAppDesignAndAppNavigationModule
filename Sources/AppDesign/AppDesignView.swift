@@ -52,7 +52,6 @@ struct MainAppDesignView<Content: View>: View {
             content()
               
         }
-        
         .environmentObject(designSystem)
         .environment(\.locale, .init(identifier: designSystem.localization.appLocale.identifier))
         .environment(\.colorScheme, designSystem.theme.currentTheme.colorScheme)

@@ -7,101 +7,40 @@
 
 import SwiftUI
 
-import SwiftUI
-
-public class BottomSheetConfiguration: ObservableObject {
-    
-    public var backgroundColor: Color
-    public var dragIndigatorSize: CGSize
-    public var dragIndicatorColor: Color
-    public var dragIndicatorTopPadding: Double
-    public var topCornerRadius: Double
-    
-    public init(backgroundColor: Color = .white,
-                dragIndigatorSize: CGSize = CGSizeMake(60, 6),
-                dragIndicatorColor: Color = Color.gray,
-                dragIndicatorTopPadding: Double = 12,
-                topCornerRadius: Double = 16) {
-        self.backgroundColor = backgroundColor
-        self.dragIndigatorSize = dragIndigatorSize
-        self.dragIndicatorColor = dragIndicatorColor
-        self.dragIndicatorTopPadding = dragIndicatorTopPadding
-        self.topCornerRadius = topCornerRadius
-    }
+public protocol BaseAppBottomSheetProtocol {
+    func startAnimation(start: BottomSheetDisplayType?, current: BottomSheetDisplayType)
+    func endAnimation(start: BottomSheetDisplayType?, current: BottomSheetDisplayType)
 }
 
-public enum BottomSheetDisplayType: Equatable {
-    case expanded
-    case expandFromTop(Double)
-    case expandFromBottom(Double)
-    case collapsed
-    case hidden
-}
-
-public enum SlideMovement {
-    case up, down
-}
-
-public class BaseAppButtomSheetViewModel: ObservableObject {
-    @Published public var steps: [BottomSheetDisplayType]
-    @Published public var maxHeight: CGFloat
-    @Published public var bottomSheepPadding: CGFloat
-    @Published public var translationHeight: CGFloat
-    @Published public var disableDragIndicatorView: Bool
-    @Published public var disableDragToHideSheet: Bool
-    @Published public var disableDragToExpanded: Bool
-    @Published public var disableDragIndicatorTapGesture: Bool
-    @Published public var dragIndicatorConfig: BottomSheetConfiguration
-    @Published public var lastMovement: SlideMovement = .up
-    
-    public init(steps: [BottomSheetDisplayType] = [],
-                maxHeight: CGFloat = UIScreen.main.bounds.height - 60,
-                bottomSheepPadding: CGFloat = 0,
-                translationHeight: CGFloat = 100,
-                disableDragToHideSheet: Bool = false,
-                disableDragToExpanded: Bool = false,
-                disableDragIndicatorView: Bool = false,
-                disableDragIndicatorTapGesture: Bool = false,
-                dragIndicatorConfig: BottomSheetConfiguration = BottomSheetConfiguration()
-    ) {
-        self.steps = steps
-        self.maxHeight = maxHeight > UIScreen.main.bounds.height - 60 ? UIScreen.main.bounds.height - 60 : maxHeight
-        self.translationHeight = translationHeight
-        self.disableDragToHideSheet = disableDragToHideSheet
-        self.disableDragToExpanded = disableDragToExpanded
-        self.disableDragIndicatorView = disableDragIndicatorView
-        self.dragIndicatorConfig = dragIndicatorConfig
-        self.disableDragIndicatorTapGesture = disableDragIndicatorTapGesture
-        self.bottomSheepPadding = bottomSheepPadding
-    }
+extension BaseAppBottomSheetProtocol {
+    func startAnimation(start: BottomSheetDisplayType?, current: BottomSheetDisplayType) {}
 }
 
 public struct BaseAppButtomSheet<Header: View, Content: View>: View {
-    @Binding var displayType: BottomSheetDisplayType
-    @ObservedObject var viewModel: BaseAppButtomSheetViewModel
+    @State private var lastDisplayType: BottomSheetDisplayType? = nil
+    @Binding var displayType: BottomSheetDisplayType {
+        didSet {
+            if lastDisplayType != displayType {
+                triggerHapticFeedback()
+            }
+            delegate?.startAnimation(start: lastDisplayType, current: displayType)
+            delegate?.endAnimation(start: lastDisplayType, current: displayType)
+            lastDisplayType = displayType
+        }
+    }
+    @ObservedObject var viewModel: BaseAppBottomSheetViewModel
+    
     let content: Content
     let header: Header
+    let delegate: BaseAppBottomSheetProtocol?
     
     @State private var headerHeight: CGFloat = 80
+    @State private var safeAreaInsets = EdgeInsets()
     @GestureState private var translation: CGFloat = 0
     
     //MARK:- Offset from top edge
     private var offset: CGFloat {
-        switch displayType {
-        case .collapsed:
-            let offset =  viewModel.maxHeight - headerHeight - viewModel.bottomSheepPadding
-            return offset < 0 ? 0 : offset
-        case .expanded :
-            return 0
-        case .expandFromTop(let topOffset) :
-            let offset =  topOffset - viewModel.bottomSheepPadding
-            return offset < 0 ? 0 : offset
-        case .expandFromBottom(let bottomHeight) :
-            let offset = viewModel.maxHeight - headerHeight - bottomHeight - viewModel.bottomSheepPadding
-            return offset < 0 ? 0 : offset
-        case .hidden :
-            return viewModel.maxHeight
-        }
+        return getOffsetValue(type: displayType)
     }
     
     private var indicator: some View {
@@ -117,31 +56,41 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
             }
     }
     
-    public func nextDisplayType() {
-        if viewModel.lastMovement == .up {
-            if displayType == .expanded {
-                nextDisplayType(directionIsUp: false, movement: viewModel.translationHeight+1)
-            } else {
-                nextDisplayType(directionIsUp: true, movement: -(viewModel.translationHeight+1))
-            }
-            
-        } else if viewModel.lastMovement == .down {
-            if displayType == .collapsed {
-                nextDisplayType(directionIsUp: true, movement: viewModel.translationHeight+1)
-            } else {
-                nextDisplayType(directionIsUp: false, movement: -(viewModel.translationHeight+1))
-            }
-        }
-    }
-    
     public init(displayType: Binding<BottomSheetDisplayType>,
-                viewModel: BaseAppButtomSheetViewModel = BaseAppButtomSheetViewModel(),
+                viewModel: BaseAppBottomSheetViewModel = BaseAppBottomSheetViewModel(),
+                delegate: BaseAppBottomSheetProtocol? = nil,
                 @ViewBuilder content: () -> Content,
                 @ViewBuilder header: () -> Header) {
         self.viewModel = viewModel
         self.content = content()
         self.header = header()
         self._displayType = displayType
+        self.delegate = delegate
+        
+        let keyWindow = UIApplication.shared.windows.first { $0.isKeyWindow }
+        safeAreaInsets = EdgeInsets(top: keyWindow?.safeAreaInsets.top ?? 0,
+                                    leading: keyWindow?.safeAreaInsets.left ?? 0,
+                                    bottom: keyWindow?.safeAreaInsets.bottom ?? 0,
+                                    trailing: keyWindow?.safeAreaInsets.right ?? 0)
+    }
+    
+    public func nextDisplayType() {
+        if !viewModel.disableUpdateDisplayType {
+            if viewModel.lastMovement == .up {
+                if displayType == .expanded {
+                    nextDisplayType(directionIsUp: false, movement: viewModel.translationHeight+1)
+                } else {
+                    nextDisplayType(directionIsUp: true, movement: -(viewModel.translationHeight+1))
+                }
+                
+            } else if viewModel.lastMovement == .down {
+                if displayType == .collapsed {
+                    nextDisplayType(directionIsUp: true, movement: viewModel.translationHeight+1)
+                } else {
+                    nextDisplayType(directionIsUp: false, movement: -(viewModel.translationHeight+1))
+                }
+            }
+        }
     }
     
     public var body: some View {
@@ -157,48 +106,64 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
                 self.content
                     .id("APP_BOTTOM_SHEET_CONTENT")
                     .opacity(displayType == .collapsed ? 0 : 1)
-//                    .animation(/*@START_MENU_TOKEN@*/.easeIn/*@END_MENU_TOKEN@*/, value: displayType == .collapsed)
-                Spacer().frame(height: viewModel.bottomSheepPadding)
-            }
-            .onPreferenceChange(HeaderHeightKey.self) { height in
-                self.headerHeight = height
-            }
-            .frame(width: geometry.size.width, height: viewModel.maxHeight, alignment: .top)
-            .background(viewModel.dragIndicatorConfig.backgroundColor)
-            .cornerRadius(viewModel.dragIndicatorConfig.topCornerRadius)
-            .frame(height: geometry.size.height, alignment: .bottom)
-            .offset(y: max(self.offset + self.translation, -30))
-            .animation(.bouncy(extraBounce: 0.09))
-            .gesture(
-                DragGesture().updating(self.$translation) { value, state, _ in
-                    state = value.translation.height
-                }.onEnded { value in
-                    if value.translation.height < -viewModel.translationHeight {
-                        nextDisplayType(directionIsUp: true, movement: value.translation.height)
-                    } else if value.translation.height > viewModel.translationHeight {
-                        nextDisplayType(directionIsUp: false, movement: value.translation.height)
-                    }
+                Spacer().frame(height: viewModel.bottomSheetPadding)
+            }.padding(geometry.safeAreaInsets)
+                .onPreferenceChange(HeaderHeightKey.self) { height in
+                    self.headerHeight = viewModel.headerHeight ?? height
                 }
-            )
+                .opacity(displayType == .hidden ? 0 : 1)
+                .frame(width: geometry.size.width, height: viewModel.maxHeight, alignment: .top)
+                .background(viewModel.dragIndicatorConfig.backgroundColor)
+                .cornerRadius(viewModel.dragIndicatorConfig.topCornerRadius, corners: [.topLeft, .topRight])
+                .frame(height: geometry.size.height, alignment: .bottom)
+                .offset(y: self.offset + self.translation > 60 ? self.offset + self.translation : 60)
+//                .offset(y: max(self.offset + self.translation, -30) > 0 ? max(self.offset + self.translation, -30) : 0)
+                .animation(.bouncy())
+                .gesture(
+                    DragGesture().updating(self.$translation) { value, state, _ in
+                        state = value.translation.height
+                    }.onEnded { value in
+                        if value.translation.height < -viewModel.translationHeight {
+                            nextDisplayType(directionIsUp: true, movement: value.translation.height)
+                        } else if value.translation.height > viewModel.translationHeight {
+                            nextDisplayType(directionIsUp: false, movement: value.translation.height)
+                        }
+                    }
+                )
+        }.onAppear {
+            let keyWindow = UIApplication.shared.windows.first { $0.isKeyWindow }
+            safeAreaInsets = EdgeInsets(top: keyWindow?.safeAreaInsets.top ?? 0,
+                                        leading: keyWindow?.safeAreaInsets.left ?? 0,
+                                        bottom: keyWindow?.safeAreaInsets.bottom ?? 0,
+                                        trailing: keyWindow?.safeAreaInsets.right ?? 0)
+            viewModel.maxHeight = UIScreen.main.bounds.height
+            print("BOTTOM APPEAR: \(safeAreaInsets.bottom)")
+        }
+    }
+    
+    private func getOffsetValue(type: BottomSheetDisplayType) -> Double {
+        let defaultTop = Double(safeAreaInsets.top)
+        switch type {
+        case .collapsed:
+            let offset =  viewModel.maxHeight - headerHeight - viewModel.bottomSheetPadding - safeAreaInsets.bottom - defaultTop
+            return offset < defaultTop ? defaultTop : offset
+        case .expanded :
+            return defaultTop
+        case .expandFromTop(let topOffset) :
+            let offset =  topOffset - viewModel.bottomSheetPadding - safeAreaInsets.bottom - defaultTop
+            return offset < defaultTop ? defaultTop : offset
+        case .expandFromBottom(let bottomHeight) :
+            let offset = viewModel.maxHeight - headerHeight - bottomHeight - viewModel.bottomSheetPadding - safeAreaInsets.bottom - defaultTop
+            return offset < defaultTop ? defaultTop : offset
+        case .hidden :
+            return UIScreen.main.bounds.height * 1.5
         }
     }
     
     private func nextDisplayType(directionIsUp: Bool, movement: Double) {
         let steps = viewModel.steps
         let distances = steps.map { type in
-            switch type {
-            case .expanded:
-                return 0.0
-            case .collapsed:
-                return viewModel.maxHeight - headerHeight
-            case .hidden:
-                return viewModel.maxHeight
-            case .expandFromBottom(let value):
-                let offset = viewModel.maxHeight - headerHeight - value
-                return offset < 0 ? 0 : offset
-            case .expandFromTop(let value):
-                return value
-            }
+            return getOffsetValue(type: type)
         }
         
         if directionIsUp {
@@ -224,7 +189,8 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     
     private func nearestUp(distances: [Double], movement: Double) -> BottomSheetDisplayType? {
         viewModel.lastMovement = .up
-        let upDistances = distances.filter({$0 < offset})
+        let currentOffset = getOffsetValue(type: displayType)
+        let upDistances = distances.filter({$0 < currentOffset})
         let finalOffset = offset + movement
         if finalOffset <= 0 && !viewModel.disableDragToExpanded {
             return BottomSheetDisplayType.expanded
@@ -236,10 +202,17 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     
     private func nearestDown(distances: [Double], movement: Double) -> BottomSheetDisplayType? {
         viewModel.lastMovement = .down
-        let downDistances = distances.filter({$0 > offset})
-        let finalOffset = offset + movement
-        if finalOffset >= viewModel.maxHeight && !viewModel.disableDragToHideSheet {
-            return BottomSheetDisplayType.hidden
+        print(offset)
+        let currentOffset = getOffsetValue(type: displayType) + 60
+        let downDistances = distances.filter({$0 > currentOffset})
+        let finalOffset = currentOffset + movement
+        print(viewModel.maxHeight)
+        if finalOffset >= viewModel.maxHeight {
+            if !viewModel.disableDragToHideSheet  {
+                return BottomSheetDisplayType.collapsed
+            } else {
+                return BottomSheetDisplayType.hidden
+            }
         } else if let nearestDistance = downDistances.nearestValue(target: finalOffset) {
             return .expandFromTop(nearestDistance)
         }
@@ -249,36 +222,20 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
         }
         
         return nil
-        
-        
     }
-}
-
-extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
-    }
-}
-
-struct RoundedCorner: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
     
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: radius, height: radius))
-        
-        return Path(path.cgPath)
+    func triggerHapticFeedback() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
     }
 }
-
 
 struct HeaderHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = .zero
     
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+        if nextValue() > 0 {
+            value = nextValue()
+        }
     }
 }

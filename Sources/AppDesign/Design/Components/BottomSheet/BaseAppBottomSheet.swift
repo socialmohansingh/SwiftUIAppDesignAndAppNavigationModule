@@ -208,7 +208,7 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
         let finalOffset = currentOffset + movement
         print(viewModel.maxHeight)
         if finalOffset >= viewModel.maxHeight {
-            if !viewModel.disableDragToHideSheet  {
+            if viewModel.disableDragToHideSheet  {
                 return BottomSheetDisplayType.collapsed
             } else {
                 return BottomSheetDisplayType.hidden

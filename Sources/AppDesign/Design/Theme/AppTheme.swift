@@ -25,12 +25,11 @@ extension ThemeType {
         }
     }
     
-    public var colorScheme: ColorScheme {
-        @Environment(\.colorScheme) var colorScheme
+    public var colorScheme: ColorScheme? {
+       
         switch self {
         case .system:
-            print("system SCHEME: \(colorScheme)")
-            return colorScheme
+            return nil
         case .light:
             return .light
         case .dark:
@@ -42,7 +41,7 @@ extension ThemeType {
 public class AppTheme {
     
     public var currentTheme: ThemeType
-    public var currentScheme: ColorScheme
+    public var currentScheme: ColorScheme?
     public var current: ThemeType {
         return currentTheme
     }

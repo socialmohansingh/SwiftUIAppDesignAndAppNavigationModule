@@ -66,17 +66,20 @@ public class BottomSheetConfiguration: ObservableObject {
     public var dragIndigatorSize: CGSize
     public var dragIndicatorColor: Color
     public var dragIndicatorTopPadding: Double
+    public var dragIndicatorBottomPadding: Double
     public var topCornerRadius: Double
     
     public init(backgroundColor: Color = .white,
                 dragIndigatorSize: CGSize = CGSizeMake(60, 6),
                 dragIndicatorColor: Color = Color.gray,
                 dragIndicatorTopPadding: Double = 12,
+                dragIndicatorBottomPadding: Double = 12,
                 topCornerRadius: Double = 16) {
         self.backgroundColor = backgroundColor
         self.dragIndigatorSize = dragIndigatorSize
         self.dragIndicatorColor = dragIndicatorColor
         self.dragIndicatorTopPadding = dragIndicatorTopPadding
+        self.dragIndicatorBottomPadding = dragIndicatorBottomPadding
         self.topCornerRadius = topCornerRadius
     }
 }

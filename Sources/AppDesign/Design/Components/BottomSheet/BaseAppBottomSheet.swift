@@ -10,6 +10,7 @@ import SwiftUI
 public protocol BaseAppBottomSheetProtocol {
     func startAnimation(start: BottomSheetDisplayType?, current: BottomSheetDisplayType)
     func endAnimation(start: BottomSheetDisplayType?, current: BottomSheetDisplayType)
+    func updateOffset(offset: CGFloat)
 }
 
 extension BaseAppBottomSheetProtocol {
@@ -94,66 +95,78 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     }
     
     public var body: some View {
-        GeometryReader { geometry in
-            VStack(spacing: 0) {
-                if !viewModel.disableDragIndicatorView {
-                    self.indicator.padding()
-                }
-                self.header.id("APP_BOTTOM_SHEET_HEADER")
-                    .background(GeometryReader { geometry in
-                        Color.clear.preference(key: HeaderHeightKey.self, value: geometry.size.height)
-                    })
-                self.content
-                    .id("APP_BOTTOM_SHEET_CONTENT")
-                    .opacity(displayType == .collapsed ? 0 : 1)
-                Spacer().frame(height: viewModel.bottomSheetPadding)
-            }.padding(geometry.safeAreaInsets)
-                .onPreferenceChange(HeaderHeightKey.self) { height in
-                    self.headerHeight = viewModel.headerHeight ?? height
-                }
-                .opacity(displayType == .hidden ? 0 : 1)
-                .frame(width: geometry.size.width, height: viewModel.maxHeight, alignment: .top)
-                .background(viewModel.dragIndicatorConfig.backgroundColor)
-                .cornerRadius(viewModel.dragIndicatorConfig.topCornerRadius, corners: [.topLeft, .topRight])
-                .frame(height: geometry.size.height, alignment: .bottom)
-                .offset(y: self.offset + self.translation > 60 ? self.offset + self.translation : 60)
-//                .offset(y: max(self.offset + self.translation, -30) > 0 ? max(self.offset + self.translation, -30) : 0)
-                .animation(.bouncy())
-                .gesture(
-                    DragGesture().updating(self.$translation) { value, state, _ in
-                        state = value.translation.height
-                    }.onEnded { value in
-                        if value.translation.height < -viewModel.translationHeight {
-                            nextDisplayType(directionIsUp: true, movement: value.translation.height)
-                        } else if value.translation.height > viewModel.translationHeight {
-                            nextDisplayType(directionIsUp: false, movement: value.translation.height)
-                        }
+        VStack {
+            Spacer()
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    if !viewModel.disableDragIndicatorView {
+                        Spacer().frame(height: viewModel.dragIndicatorConfig.dragIndicatorTopPadding)
+                        self.indicator
+                        Spacer().frame(height: viewModel.dragIndicatorConfig.dragIndicatorBottomPadding)
                     }
-                )
-        }.onAppear {
-            let keyWindow = UIApplication.shared.windows.first { $0.isKeyWindow }
-            safeAreaInsets = EdgeInsets(top: keyWindow?.safeAreaInsets.top ?? 0,
-                                        leading: keyWindow?.safeAreaInsets.left ?? 0,
-                                        bottom: keyWindow?.safeAreaInsets.bottom ?? 0,
-                                        trailing: keyWindow?.safeAreaInsets.right ?? 0)
-            viewModel.maxHeight = UIScreen.main.bounds.height
-            print("BOTTOM APPEAR: \(safeAreaInsets.bottom)")
+                    self.header.id("APP_BOTTOM_SHEET_HEADER")
+                        .background(GeometryReader { geometry in
+                            Color.clear.preference(key: HeaderHeightKey.self, value: geometry.size.height)
+                        })
+                    self.content
+                        .id("APP_BOTTOM_SHEET_CONTENT")
+                        .opacity(displayType == .collapsed ? 0 : 1)
+                    Spacer().frame(height: viewModel.bottomSheetPadding)
+                }.padding(geometry.safeAreaInsets)
+                    .onPreferenceChange(HeaderHeightKey.self) { height in
+                        self.headerHeight = viewModel.headerHeight ?? height
+                    }
+                    .opacity(displayType == .hidden ? 0 : 1)
+                    .frame(width: geometry.size.width, height: viewModel.maxHeight, alignment: .bottom)
+                
+                    .frame(height: geometry.size.height, alignment: .bottom)
+                    .background(viewModel.dragIndicatorConfig.backgroundColor)
+                    .cornerRadius(viewModel.dragIndicatorConfig.topCornerRadius, corners: [.topLeft, .topRight])
+                    .offset(y: self.offset + self.translation > 60 ? self.offset + self.translation : 60)
+                    .animation(.bouncy())
+                    .gesture(
+                        DragGesture().updating(self.$translation) { value, state, _ in
+                            state = value.translation.height
+                            let topOffset = self.offset + self.translation > 60 ? self.offset + self.translation : 60
+                            delegate?.updateOffset(offset: topOffset)
+
+                        }.onEnded { value in
+                            if value.translation.height < -viewModel.translationHeight {
+                                nextDisplayType(directionIsUp: true, movement: value.translation.height)
+                            } else if value.translation.height > viewModel.translationHeight {
+                                nextDisplayType(directionIsUp: false, movement: value.translation.height)
+                            }
+                            let topOffset = self.offset + self.translation > 60 ? self.offset + self.translation : 60
+                            delegate?.updateOffset(offset: topOffset)
+                        }
+                    )
+            }.onAppear {
+                let keyWindow = UIApplication.shared.windows.first { $0.isKeyWindow }
+                safeAreaInsets = EdgeInsets(top: keyWindow?.safeAreaInsets.top ?? 0,
+                                            leading: keyWindow?.safeAreaInsets.left ?? 0,
+                                            bottom: keyWindow?.safeAreaInsets.bottom ?? 0,
+                                            trailing: keyWindow?.safeAreaInsets.right ?? 0)
+                viewModel.maxHeight = UIScreen.main.bounds.height
+            }
         }
     }
     
     private func getOffsetValue(type: BottomSheetDisplayType) -> Double {
         let defaultTop = Double(safeAreaInsets.top)
+        let dragHeightFromComponent = viewModel.dragIndicatorConfig.dragIndicatorTopPadding + viewModel.dragIndicatorConfig.dragIndigatorSize.height
+//        viewModel.dragIndicatorConfig.dragIndicatorBottomPadding
+        let dragHeight: Double = viewModel.disableDragIndicatorView ? 0 : dragHeightFromComponent
         switch type {
         case .collapsed:
-            let offset =  viewModel.maxHeight - headerHeight - viewModel.bottomSheetPadding - safeAreaInsets.bottom - defaultTop
+            let offset =  viewModel.maxHeight - headerHeight - viewModel.bottomSheetPadding - defaultTop - dragHeight
             return offset < defaultTop ? defaultTop : offset
-        case .expanded :
+        case .expanded:
             return defaultTop
         case .expandFromTop(let topOffset) :
-            let offset =  topOffset - viewModel.bottomSheetPadding - safeAreaInsets.bottom - defaultTop
+            let offset =  topOffset - viewModel.bottomSheetPadding - dragHeight - defaultTop
             return offset < defaultTop ? defaultTop : offset
         case .expandFromBottom(let bottomHeight) :
-            let offset = viewModel.maxHeight - headerHeight - bottomHeight - viewModel.bottomSheetPadding - safeAreaInsets.bottom - defaultTop
+            let offset = viewModel.maxHeight - headerHeight - bottomHeight - viewModel.bottomSheetPadding - defaultTop - dragHeight
             return offset < defaultTop ? defaultTop : offset
         case .hidden :
             return UIScreen.main.bounds.height * 1.5
@@ -202,11 +215,9 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     
     private func nearestDown(distances: [Double], movement: Double) -> BottomSheetDisplayType? {
         viewModel.lastMovement = .down
-        print(offset)
         let currentOffset = getOffsetValue(type: displayType) + 60
         let downDistances = distances.filter({$0 > currentOffset})
         let finalOffset = currentOffset + movement
-        print(viewModel.maxHeight)
         if finalOffset >= viewModel.maxHeight {
             if viewModel.disableDragToHideSheet  {
                 return BottomSheetDisplayType.collapsed
@@ -238,4 +249,32 @@ struct HeaderHeightKey: PreferenceKey {
             value = nextValue()
         }
     }
+}
+
+#Preview {
+   
+    ZStack {
+        Color.orange.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+        Button("Title") {
+            print("asdf")
+        }
+        AppBottomSheetView(displayType: .constant(.collapsed), viewModel: BaseAppBottomSheetViewModel(
+            disableDragIndicatorView: false, dragIndicatorConfig: BottomSheetConfiguration(backgroundColor: .green))) {
+            VStack {
+                
+                VStack {
+                    Color.yellow.padding(.bottom, 4)
+                }.frame(height: 100)
+                .background(Color.white)
+                Spacer()
+            } .background(Color.purple)
+        } header: {
+            ZStack {
+                Color.blue
+                    .padding(.bottom, 4)
+            }.frame(height: 80)
+                .background(Color.red)
+        }
+    }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+
 }

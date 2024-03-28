@@ -19,16 +19,18 @@ struct ContentView: View {
                 HomeCoordinator()
             }
             
-            AppButtomSheetView(displayType: $displayStyle,
-                               viewModel: BaseAppButtomSheetViewModel(bottomSheepPadding: 120)
+            AppBottomSheetView(displayType: $displayStyle,
+                               viewModel: BaseAppBottomSheetViewModel(disableDragToHideSheet: true)
             ) {
                 Color.blue
             } header: {
                 ZStack {
                     Color.red
+                        .padding(.bottom, 4)
                     TextField("Mohan Singh", text: $text)
                     Spacer()
                 }.frame(height: 100)
+                    .background(Color.green)
             }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
 
         }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)

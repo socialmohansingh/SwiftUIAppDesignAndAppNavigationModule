@@ -42,6 +42,7 @@ public struct AppDesignViewIOS13<Content: View>: View {
 
 struct MainAppDesignView<Content: View>: View {
     @Environment(\.colorScheme) var colorScheme
+    
     @Environment(\.locale) var locale
     
     @ViewBuilder var content: () -> Content
@@ -54,7 +55,7 @@ struct MainAppDesignView<Content: View>: View {
         }
         .environmentObject(designSystem)
         .environment(\.locale, .init(identifier: designSystem.localization.appLocale.identifier))
-        .environment(\.colorScheme, designSystem.theme.currentTheme.colorScheme)
+        .environment(\.colorScheme, designSystem.theme.currentTheme.colorScheme ?? colorScheme)
         .onAppear(perform: {
             print(colorScheme)
             print(locale)

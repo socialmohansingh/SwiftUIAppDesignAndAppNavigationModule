@@ -202,8 +202,6 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     
     private func nextDisplayType(directionIsUp: Bool, movement: Double) {
         var steps = viewModel.steps
-        steps.insert(.expanded, at: 0)
-        steps.append(.collapsed)
         let distances = steps.map { type in
             return getOffsetValue(type: type)
         }
@@ -255,6 +253,10 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
                 return BottomSheetDisplayType.hidden
             }
         } else if let nearestDistance = downDistances.nearestValue(target: finalOffset) {
+            let collapsedTop = getOffsetValue(type: .collapsed)
+            if finalOffset > collapsedTop && nearestDistance < collapsedTop {
+                return BottomSheetDisplayType.collapsed
+            }
             return .expandFromTop(nearestDistance)
         }
         

@@ -33,6 +33,9 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     
     let content: Content
     let header: Header
+    
+    let leftDragView: AnyView?
+    let rightDragView: AnyView?
     let delegate: BaseAppBottomSheetProtocol?
     
     @State private var headerHeight: CGFloat = 80
@@ -60,6 +63,8 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     public init(displayType: Binding<BottomSheetDisplayType>,
                 viewModel: BaseAppBottomSheetViewModel = BaseAppBottomSheetViewModel(),
                 delegate: BaseAppBottomSheetProtocol? = nil,
+                leftDragView: AnyView? = nil,
+                rightDragView: AnyView? = nil,
                 @ViewBuilder content: () -> Content,
                 @ViewBuilder header: () -> Header) {
         self.viewModel = viewModel
@@ -67,7 +72,8 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
         self.header = header()
         self._displayType = displayType
         self.delegate = delegate
-        
+        self.leftDragView = leftDragView
+        self.rightDragView = rightDragView
         let keyWindow = UIApplication.shared.windows.first { $0.isKeyWindow }
         safeAreaInsets = EdgeInsets(top: keyWindow?.safeAreaInsets.top ?? 0,
                                     leading: keyWindow?.safeAreaInsets.left ?? 0,
@@ -100,9 +106,25 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
             GeometryReader { geometry in
                 VStack(spacing: 0) {
                     if !viewModel.disableDragIndicatorView {
-                        Spacer().frame(height: viewModel.dragIndicatorConfig.dragIndicatorTopPadding)
-                        self.indicator
-                        Spacer().frame(height: viewModel.dragIndicatorConfig.dragIndicatorBottomPadding)
+                        HStack(spacing: 0) {
+                            ZStack {
+                                if let leftView = self.leftDragView {
+                                    leftView
+                                }
+                            }.frame(width: 150)
+                            Spacer()
+                            VStack(spacing: 0) {
+                                Spacer().frame(height: viewModel.dragIndicatorConfig.dragIndicatorTopPadding)
+                                self.indicator
+                                Spacer().frame(height: viewModel.dragIndicatorConfig.dragIndicatorBottomPadding)
+                            }
+                            Spacer()
+                            ZStack {
+                                if let rightView = self.rightDragView {
+                                    rightView
+                                }
+                            }.frame(width: 150)
+                        }.padding(.horizontal, 8)
                     }
                     self.header.id("APP_BOTTOM_SHEET_HEADER")
                         .background(GeometryReader { geometry in
@@ -111,18 +133,21 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
                     self.content
                         .id("APP_BOTTOM_SHEET_CONTENT")
                         .opacity(displayType == .collapsed ? 0 : 1)
+                        
                     Spacer().frame(height: viewModel.bottomSheetPadding)
+                    Spacer()
                 }.padding(geometry.safeAreaInsets)
                     .onPreferenceChange(HeaderHeightKey.self) { height in
                         self.headerHeight = viewModel.headerHeight ?? height
                     }
                     .opacity(displayType == .hidden ? 0 : 1)
                     .frame(width: geometry.size.width, height: viewModel.maxHeight, alignment: .bottom)
-                
-                    .frame(height: geometry.size.height, alignment: .bottom)
+
                     .background(viewModel.dragIndicatorConfig.backgroundColor)
                     .cornerRadius(viewModel.dragIndicatorConfig.topCornerRadius, corners: [.topLeft, .topRight])
                     .offset(y: self.offset + self.translation > 60 ? self.offset + self.translation : 60)
+                
+                    .frame(height: geometry.size.height, alignment: .bottom)
                     .animation(.bouncy())
                     .gesture(
                         DragGesture().updating(self.$translation) { value, state, _ in
@@ -259,22 +284,26 @@ struct HeaderHeightKey: PreferenceKey {
             print("asdf")
         }
         AppBottomSheetView(displayType: .constant(.collapsed), viewModel: BaseAppBottomSheetViewModel(
-            disableDragIndicatorView: false, dragIndicatorConfig: BottomSheetConfiguration(backgroundColor: .green))) {
-            VStack {
+            disableDragIndicatorView: false, 
+            dragIndicatorConfig: BottomSheetConfiguration(backgroundColor: .green)),
+                           rightDragView: AnyView(ZStack{}.frame(width: 5, height: 5).background(Color.red)
+        )) {
+//            VStack {
+//                
+//                VStack {
+//                    Color.yellow.padding(.bottom, 4)
+//                }.frame(height: 100)
+//                .background(Color.white)
+//                Spacer()
+//            } .background(Color.purple)
                 
-                VStack {
-                    Color.yellow.padding(.bottom, 4)
-                }.frame(height: 100)
-                .background(Color.white)
-                Spacer()
-            } .background(Color.purple)
         } header: {
             ZStack {
                 Color.blue
                     .padding(.bottom, 4)
-            }.frame(height: 80)
+            }.frame(height: 180)
                 .background(Color.red)
         }
-    }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+    }
 
 }

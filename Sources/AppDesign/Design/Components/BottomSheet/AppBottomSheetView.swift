@@ -27,11 +27,15 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
     @ObservedObject var viewModel: BaseAppBottomSheetViewModel
     @ViewBuilder let content: () -> Content
     @ViewBuilder let header: () -> Header
+    let leftDragView: AnyView?
+    let rightDragView: AnyView?
     let delegate: BaseAppBottomSheetProtocol?
     
     public init(displayType: Binding<BottomSheetDisplayType>,
          viewModel: BaseAppBottomSheetViewModel = BaseAppBottomSheetViewModel(),
         delegate: BaseAppBottomSheetProtocol? = nil,
+                leftDragView: AnyView? = nil,
+                rightDragView: AnyView? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder header: @escaping () -> Header) {
         self.displayType = displayType
@@ -39,6 +43,8 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
         self.content = content
         self.header = header
         self.delegate = delegate
+        self.leftDragView = leftDragView
+        self.rightDragView = rightDragView
     }
     
     public var body: some View {
@@ -48,6 +54,8 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
                 BaseAppButtomSheet(displayType: displayType, 
                                    viewModel: viewModel,
                                    delegate: delegate,
+                                   leftDragView: leftDragView,
+                                   rightDragView: rightDragView,
                                    content: content, header: header)
             }.edgesIgnoringSafeArea(.all)
             
@@ -63,16 +71,17 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
             print("asdf")
         }
         AppBottomSheetView(displayType: .constant(.collapsed), viewModel: BaseAppBottomSheetViewModel(
-            disableDragIndicatorView: false, dragIndicatorConfig: BottomSheetConfiguration(backgroundColor: .green))) {
-            ZStack {
-                Color.red
-            }
+            disableDragIndicatorView: false, dragIndicatorConfig: BottomSheetConfiguration(backgroundColor: .green)), rightDragView: AnyView(HStack {Spacer()
+                ZStack{}.frame(width: 10, height: 25).background(Color.blue)})) {
+                ZStack {
+                    Color.red
+                }.frame(height: 150)
         } header: {
             ZStack {
-                Color.blue.frame(height: 80)
-            }.frame(height: 80)
+                Color.red
+            }.frame(height: 150)
         }
-    }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+    }
 
 }
 //

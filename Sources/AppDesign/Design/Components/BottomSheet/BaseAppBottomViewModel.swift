@@ -38,7 +38,7 @@ public class BaseAppBottomSheetViewModel: ObservableObject {
                 maxHeight: CGFloat = UIScreen.main.bounds.height - 60,
                 headerHeight: CGFloat? = nil,
                 bottomSheetPadding: CGFloat = 0,
-                translationHeight: CGFloat = 100,
+                translationHeight: CGFloat = 50,
                 disableDragToHideSheet: Bool = false,
                 disableDragToExpanded: Bool = false,
                 disableDragIndicatorView: Bool = false,

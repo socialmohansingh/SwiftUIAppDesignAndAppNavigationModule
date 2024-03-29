@@ -53,11 +53,7 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
             .frame(
                 width: viewModel.dragIndicatorConfig.dragIndigatorSize.width,
                 height: viewModel.dragIndicatorConfig.dragIndigatorSize.height
-            ).onTapGesture {
-                if !viewModel.disableDragIndicatorTapGesture {
-                    nextDisplayType()
-                }
-            }
+            )
     }
     
     public init(displayType: Binding<BottomSheetDisplayType>,
@@ -87,6 +83,7 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
                 if displayType == .expanded {
                     nextDisplayType(directionIsUp: false, movement: viewModel.translationHeight+1)
                 } else {
+                    viewModel.lastMovement = .down
                     nextDisplayType(directionIsUp: true, movement: -(viewModel.translationHeight+1))
                 }
                 
@@ -94,6 +91,7 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
                 if displayType == .collapsed {
                     nextDisplayType(directionIsUp: true, movement: viewModel.translationHeight+1)
                 } else {
+                    viewModel.lastMovement = .up
                     nextDisplayType(directionIsUp: false, movement: -(viewModel.translationHeight+1))
                 }
             }
@@ -117,6 +115,10 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
                                 Spacer().frame(height: viewModel.dragIndicatorConfig.dragIndicatorTopPadding)
                                 self.indicator
                                 Spacer().frame(height: viewModel.dragIndicatorConfig.dragIndicatorBottomPadding)
+                            }.onTapGesture {
+                                if !viewModel.disableDragIndicatorTapGesture {
+                                    nextDisplayType()
+                                }
                             }
                             Spacer()
                             ZStack {
@@ -239,6 +241,7 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     }
     
     private func nearestDown(distances: [Double], movement: Double) -> BottomSheetDisplayType? {
+    
         viewModel.lastMovement = .down
         let currentOffset = getOffsetValue(type: displayType) + 60
         let downDistances = distances.filter({$0 > currentOffset})

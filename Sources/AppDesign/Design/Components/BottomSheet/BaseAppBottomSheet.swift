@@ -201,7 +201,9 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
     }
     
     private func nextDisplayType(directionIsUp: Bool, movement: Double) {
-        let steps = viewModel.steps
+        var steps = viewModel.steps
+        steps.insert(.expanded, at: 0)
+        steps.append(.collapsed)
         let distances = steps.map { type in
             return getOffsetValue(type: type)
         }

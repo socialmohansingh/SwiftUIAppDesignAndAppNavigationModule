@@ -29,6 +29,7 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
     @ViewBuilder let header: () -> Header
     let leftDragView: AnyView?
     let rightDragView: AnyView?
+    let topHeader: TopHeader?
     let delegate: BaseAppBottomSheetProtocol?
     
     public init(displayType: Binding<BottomSheetDisplayType>,
@@ -36,6 +37,7 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
         delegate: BaseAppBottomSheetProtocol? = nil,
                 leftDragView: AnyView? = nil,
                 rightDragView: AnyView? = nil,
+                topHeader: TopHeader? = nil,
          @ViewBuilder content: @escaping () -> Content,
          @ViewBuilder header: @escaping () -> Header) {
         self.displayType = displayType
@@ -44,6 +46,7 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
         self.header = header
         self.delegate = delegate
         self.leftDragView = leftDragView
+        self.topHeader = topHeader
         self.rightDragView = rightDragView
     }
     
@@ -56,6 +59,7 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
                                    delegate: delegate,
                                    leftDragView: leftDragView,
                                    rightDragView: rightDragView,
+                                   topHeader: topHeader,
                                    content: content, header: header)
             }.edgesIgnoringSafeArea(.all)
             

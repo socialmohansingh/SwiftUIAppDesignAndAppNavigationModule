@@ -274,7 +274,7 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
             }
         } else if let nearestDistance = downDistances.nearestValue(target: finalOffset) {
             let collapsedTop = getOffsetValue(type: .collapsed)
-            if finalOffset > collapsedTop && nearestDistance < collapsedTop {
+            if finalOffset > collapsedTop {
                 return BottomSheetDisplayType.collapsed
             }
             return .expandFromTop(nearestDistance)

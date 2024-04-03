@@ -262,7 +262,7 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
         viewModel.lastMovement = .up
         let currentOffset = getOffsetValue(type: displayType)
         let upDistances = distances.filter({$0 < currentOffset})
-        let finalOffset = offset + movement
+        let finalOffset = currentOffset + movement
         if finalOffset <= 0 && !viewModel.disableDragToExpanded {
             return BottomSheetDisplayType.expanded
         } else if let nearestDistance = upDistances.nearestValue(target: finalOffset) {
@@ -277,7 +277,7 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
         let currentOffset = getOffsetValue(type: displayType) + 60
         let downDistances = distances.filter({$0 > currentOffset})
         let finalOffset = currentOffset + movement
-        if finalOffset >= viewModel.maxHeight {
+        if finalOffset + self.topHeader.height >= viewModel.maxHeight {
             if viewModel.disableDragToHideSheet  {
                 return BottomSheetDisplayType.collapsed
             } else {

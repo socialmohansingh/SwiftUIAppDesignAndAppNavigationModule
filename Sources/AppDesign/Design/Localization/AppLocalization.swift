@@ -13,8 +13,12 @@ public class AppLocalization {
     var appLocale: Locale
     
     init() {
-        let currentLocale = UserDefaults.standard.localization
-        appLocale = currentLocale
+        if let currentLocale = UserDefaults.standard.localization {
+            appLocale = currentLocale
+        } else {
+            changeLocale(AppLocalization.defaultLanguage) 
+            appLocale = AppLocalization.defaultLanguage
+        }
     }
     
     public var current: Locale {
@@ -36,10 +40,10 @@ extension String {
 }
 
 extension UserDefaults {
-  var localization: Locale {
+  var localization: Locale? {
     get {
         register(defaults: [#function: AppLocalization.defaultLanguage.identifier])
-      return Locale(identifier: string(forKey: #function) ?? AppLocalization.defaultLanguage.identifier)
+      return Locale(identifier: string(forKey: #function)
     }
     set {
       set(newValue.identifier, forKey: #function)

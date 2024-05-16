@@ -48,8 +48,7 @@ public struct AppCoordinatorIOS13<MyCoordinator: Coordinator>: Coordinator {
 struct NavigationStackView: View {
     @ObservedObject var navigation: AppNavigation = AppNavigation()
     var rootView: ScreenView?
-   
-    
+    @Environment(\.colorScheme) var colorScheme
     var body: some View {
         Group {
             if #available(iOS 16.0, *) {
@@ -63,15 +62,43 @@ struct NavigationStackView: View {
                 })
             } else {
                 ZStack {
+                    
                     //ROOT VIEW
                     navigation.rootView?.view ?? rootView?.view ?? AnyView(Text("Root view not found"))
                     
                     //STACK VIEW
-                    ForEach(navigation.screens, id: \.self) { screen in
-                        screen.view.transition(.slide)
+                    GeometryReader { geo in
+                        ForEach(navigation.screens, id: \.self) { screen in
+                            VStack(spacing: 0) {
+                                if geo.safeAreaInsets.top > 0 {
+                                    Spacer().frame(height: geo.safeAreaInsets.top)
+                                }
+                                HStack {
+                                    Image(systemName: "chevron.left")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .padding(.horizontal, 16)
+                                        .padding(.bottom, 16)
+                                        .frame(width: 45, height: 45)
+                                        .foregroundColor(.primary)
+                                        .onTapGesture {
+                                            navigation.screens.popLast()
+                                        }
+                                    Spacer()
+                                }.frame(height: 45)
+                                screen.view
+                                Spacer()
+                                if geo.safeAreaInsets.bottom > 0 {
+                                    Spacer().frame(height: geo.safeAreaInsets.bottom)
+                                }
+                            }
+                            .background(colorScheme == .light ? Color.white : Color.black)
+                            .edgesIgnoringSafeArea(.all)
+                            
+                        } .transition(.move(edge: .trailing))
+                            .animation(.linear(duration: 0.1))
                     }
-                }.edgesIgnoringSafeArea(.all)
-                
+                }
             }
         }
         .onAppear(perform: {

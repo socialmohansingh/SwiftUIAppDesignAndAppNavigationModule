@@ -10,7 +10,7 @@ import SwiftUI
 public protocol BaseAppBottomSheetProtocol {
     func startAnimation(start: BottomSheetDisplayType?, current: BottomSheetDisplayType)
     func endAnimation(start: BottomSheetDisplayType?, current: BottomSheetDisplayType)
-    func updateOffset(offset: CGFloat)
+    func updateOffset(offset: CGFloat, velocity: CGSize)
 }
 
 extension BaseAppBottomSheetProtocol {
@@ -185,16 +185,17 @@ public struct BaseAppButtomSheet<Header: View, Content: View>: View {
                             DragGesture().updating(self.$translation) { value, state, _ in
                                 state = value.translation.height
                                 let topOffset = self.offset + self.translation > 60 ? self.offset + self.translation : 60
-                                delegate?.updateOffset(offset: topOffset)
+                                delegate?.updateOffset(offset: topOffset, velocity: value.velocity)
 
                             }.onEnded { value in
+                                print(value.velocity)
                                 if value.translation.height < -viewModel.translationHeight {
                                     nextDisplayType(directionIsUp: true, movement: value.translation.height)
                                 } else if value.translation.height > viewModel.translationHeight {
                                     nextDisplayType(directionIsUp: false, movement: value.translation.height)
                                 }
                                 let topOffset = self.offset + self.translation > 60 ? self.offset + self.translation : 60
-                                delegate?.updateOffset(offset: topOffset)
+                                delegate?.updateOffset(offset: topOffset, velocity: value.velocity)
                             }
                         )
                 }.onAppear {

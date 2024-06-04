@@ -70,33 +70,64 @@ struct NavigationStackView: View {
                     GeometryReader { geo in
                         ForEach(navigation.screens, id: \.self) { screen in
                             VStack(spacing: 0) {
-                                if geo.safeAreaInsets.top > 0 {
-                                    Spacer().frame(height: geo.safeAreaInsets.top)
-                                }
-                                HStack {
-                                    Image(systemName: "chevron.left")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .padding(.horizontal, 16)
-                                        .padding(.bottom, 16)
-                                        .frame(width: 45, height: 45)
-                                        .foregroundColor(.primary)
-                                        .onTapGesture {
-                                            navigation.screens.popLast()
+                                if screen.showFullScreen {
+                                    ZStack {
+                                        screen.view.edgesIgnoringSafeArea(.all)
+                                        
+                                        if !screen.hideNav {
+                                            VStack {
+                                                if geo.safeAreaInsets.top > 0 {
+                                                    Spacer().frame(height: geo.safeAreaInsets.top)
+                                                }
+                                                HStack {
+                                                    Image(systemName: "chevron.left")
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .padding(.horizontal, 16)
+                                                        .padding(.bottom, 16)
+                                                        .frame(width: 45, height: 45)
+                                                        .foregroundColor(.primary)
+                                                        .onTapGesture {
+                                                            navigation.screens.popLast()
+                                                        }
+                                                    Spacer()
+                                                }.frame(height: 45)
+                                                Spacer()
+                                            }
                                         }
+                                    }.edgesIgnoringSafeArea(.all)
+                                } else {
+                                    if geo.safeAreaInsets.top > 0 {
+                                        Spacer().frame(height: geo.safeAreaInsets.top)
+                                    }
+                                    if !screen.hideNav {
+                                        HStack {
+                                            Image(systemName: "chevron.left")
+                                                .resizable()
+                                                .scaledToFit()
+                                                .padding(.horizontal, 16)
+                                                .padding(.bottom, 16)
+                                                .frame(width: 45, height: 45)
+                                                .foregroundColor(.primary)
+                                                .onTapGesture {
+                                                    navigation.screens.popLast()
+                                                }
+                                            Spacer()
+                                        }.frame(height: 45)
+                                    }
+                                    screen.view
                                     Spacer()
-                                }.frame(height: 45)
-                                screen.view
-                                Spacer()
-                                if geo.safeAreaInsets.bottom > 0 {
-                                    Spacer().frame(height: geo.safeAreaInsets.bottom)
+                                    if geo.safeAreaInsets.bottom > 0 {
+                                        Spacer().frame(height: geo.safeAreaInsets.bottom)
+                                    }
                                 }
                             }
                             .background(colorScheme == .light ? Color.white : Color.black)
                             .edgesIgnoringSafeArea(.all)
                             
-                        } .transition(.move(edge: .trailing))
-                            .animation(.linear(duration: 0.1))
+                        } 
+                        .transition(.move(edge: .trailing))
+                        .animation(.linear(duration: 0.1))
                     }
                 }
             }

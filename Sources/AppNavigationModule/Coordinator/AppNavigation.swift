@@ -7,6 +7,7 @@
 
 
 import SwiftUI
+import Combine
 
 protocol NavigationRoute {
     var rootView: ScreenView? { get set }
@@ -26,6 +27,24 @@ public class AppNavigation: NavigationRoute, ObservableObject {
     
    @Published public var rootView: ScreenView?
    @Published public var screens: [ScreenView] = []
+    private var subscriptions = Set<AnyCancellable>()
+    @Published var currentScreen: ScreenView?
+    
+    public init() {
+        if #available(iOS 16.0, *) {
+            
+        } else {
+            $screens.sink { [weak self] screens in
+                DispatchQueue.main.async {
+                    if screens.isEmpty {
+                        self?.currentScreen = nil
+                    } else {
+                        self?.currentScreen = self?.screens.last
+                    }
+                }
+            }.store(in: &subscriptions)
+        }
+    }
     
     public func push(_ screen: ScreenView) {
         screens.append(screen)

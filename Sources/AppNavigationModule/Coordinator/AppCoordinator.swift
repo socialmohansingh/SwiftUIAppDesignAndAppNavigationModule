@@ -61,75 +61,116 @@ struct NavigationStackView: View {
                     }
                 })
             } else {
-                ZStack {
-                    
-                    //ROOT VIEW
-                    navigation.rootView?.view ?? rootView?.view ?? AnyView(Text("Root view not found"))
-                    
-                    //STACK VIEW
-                    GeometryReader { geo in
-                        ForEach(navigation.screens, id: \.self) { screen in
-                            VStack(spacing: 0) {
-                                if screen.showFullScreen {
-                                    ZStack {
-                                        screen.view.edgesIgnoringSafeArea(.all)
-                                        
-                                        if !screen.hideNav {
-                                            VStack {
-                                                if geo.safeAreaInsets.top > 0 {
-                                                    Spacer().frame(height: geo.safeAreaInsets.top)
-                                                }
-                                                HStack {
-                                                    Image(systemName: "chevron.left")
-                                                        .resizable()
-                                                        .scaledToFit()
-                                                        .padding(.horizontal, 16)
-                                                        .padding(.bottom, 16)
-                                                        .frame(width: 45, height: 45)
-                                                        .foregroundColor(.primary)
-                                                        .onTapGesture {
-                                                            navigation.screens.popLast()
-                                                        }
-                                                    Spacer()
-                                                }.frame(height: 45)
+                NavigationView {
+                    VStack {
+                        navigation.rootView?.view.navigationBarBackButtonHidden()
+                        if let currentScreen = navigation.currentScreen {
+                            if #available(iOS 14.0, *) {
+                                NavigationLink(
+                                    destination: VStack(spacing: 0) {
+                                        if !currentScreen.hideNav {
+                                            HStack {
+                                                Image(systemName: "chevron.left")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .padding(.horizontal, 16)
+                                                    .padding(.bottom, 16)
+                                                    .frame(width: 45, height: 45)
+                                                    .foregroundColor(.primary)
+                                                    .onTapGesture {
+                                                        navigation.screens.popLast()
+                                                    }
                                                 Spacer()
-                                            }
+                                            }.frame(height: 45)
                                         }
-                                    }.edgesIgnoringSafeArea(.all)
-                                } else {
-                                    if geo.safeAreaInsets.top > 0 {
-                                        Spacer().frame(height: geo.safeAreaInsets.top)
+                                        currentScreen.view
+                                    },
+                                    isActive: .constant(true),
+                                    label: {
+                                        ZStack {
+                                            
+                                        }
                                     }
-                                    if !screen.hideNav {
-                                        HStack {
-                                            Image(systemName: "chevron.left")
-                                                .resizable()
-                                                .scaledToFit()
-                                                .padding(.horizontal, 16)
-                                                .padding(.bottom, 16)
-                                                .frame(width: 45, height: 45)
-                                                .foregroundColor(.primary)
-                                                .onTapGesture {
-                                                    navigation.screens.popLast()
-                                                }
-                                            Spacer()
-                                        }.frame(height: 45)
-                                    }
-                                    screen.view
-                                    Spacer()
-                                    if geo.safeAreaInsets.bottom > 0 {
-                                        Spacer().frame(height: geo.safeAreaInsets.bottom)
-                                    }
-                                }
+                                    
+                                ).hidden()
+                                    .navigationBarTitleDisplayMode(.inline)
+                            } else {
+                                // Fallback on earlier versions
                             }
-                            .background(colorScheme == .light ? Color.white : Color.black)
-                            .edgesIgnoringSafeArea(.all)
-                            
-                        } 
-                        .transition(.move(edge: .trailing))
-                        .animation(.linear(duration: 0.1))
-                    }
-                }
+                        }
+                    }.navigationBarBackButtonHidden()
+                        .navigationBarHidden(true)
+                }.navigationBarBackButtonHidden()
+               
+//                                ZStack {
+//                
+//                                    //ROOT VIEW
+//                                    navigation.rootView?.view ?? rootView?.view ?? AnyView(Text("Root view not found"))
+//                
+//                                    //STACK VIEW
+//                                    GeometryReader { geo in
+//                                        ForEach(navigation.screens, id: \.self) { screen in
+//                                            VStack(spacing: 0) {
+//                                                if screen.showFullScreen {
+//                                                    ZStack {
+//                                                        screen.view.edgesIgnoringSafeArea(.all)
+//                
+//                                                        if !screen.hideNav {
+//                                                            VStack {
+//                                                                if geo.safeAreaInsets.top > 0 {
+//                                                                    Spacer().frame(height: geo.safeAreaInsets.top)
+//                                                                }
+//                                                                HStack {
+//                                                                    Image(systemName: "chevron.left")
+//                                                                        .resizable()
+//                                                                        .scaledToFit()
+//                                                                        .padding(.horizontal, 16)
+//                                                                        .padding(.bottom, 16)
+//                                                                        .frame(width: 45, height: 45)
+//                                                                        .foregroundColor(.primary)
+//                                                                        .onTapGesture {
+//                                                                            navigation.screens.popLast()
+//                                                                        }
+//                                                                    Spacer()
+//                                                                }.frame(height: 45)
+//                                                                Spacer()
+//                                                            }
+//                                                        }
+//                                                    }.edgesIgnoringSafeArea(.all)
+//                                                } else {
+//                                                    if geo.safeAreaInsets.top > 0 {
+//                                                        Spacer().frame(height: geo.safeAreaInsets.top)
+//                                                    }
+//                                                    if !screen.hideNav {
+//                                                        HStack {
+//                                                            Image(systemName: "chevron.left")
+//                                                                .resizable()
+//                                                                .scaledToFit()
+//                                                                .padding(.horizontal, 16)
+//                                                                .padding(.bottom, 16)
+//                                                                .frame(width: 45, height: 45)
+//                                                                .foregroundColor(.primary)
+//                                                                .onTapGesture {
+//                                                                    navigation.screens.popLast()
+//                                                                }
+//                                                            Spacer()
+//                                                        }.frame(height: 45)
+//                                                    }
+//                                                    screen.view
+//                                                    Spacer()
+//                                                    if geo.safeAreaInsets.bottom > 0 {
+//                                                        Spacer().frame(height: geo.safeAreaInsets.bottom)
+//                                                    }
+//                                                }
+//                                            }
+//                                            .background(colorScheme == .light ? Color.white : Color.black)
+//                                            .edgesIgnoringSafeArea(.all)
+//                
+//                                        }
+//                                        .transition(.move(edge: .trailing))
+//                                        .animation(.linear(duration: 0.1))
+//                                    }
+//                                }
             }
         }
         .onAppear(perform: {

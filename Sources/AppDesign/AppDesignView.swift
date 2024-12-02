@@ -51,7 +51,6 @@ struct MainAppDesignView<Content: View>: View {
     var body: some View {
         Group {
             content()
-              
         }
         .environmentObject(designSystem)
         .environment(\.locale, .init(identifier: designSystem.localization.appLocale.identifier))

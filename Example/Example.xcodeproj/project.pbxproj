@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04825B492D4B60E1002AA351 /* SwiftUIAppDesignAndAppNavigationModule in Frameworks */ = {isa = PBXBuildFile; productRef = 04825B482D4B60E1002AA351 /* SwiftUIAppDesignAndAppNavigationModule */; };
+		04825B4C2D4B6195002AA351 /* SwiftUIAppDesignAndAppNavigationModule in Frameworks */ = {isa = PBXBuildFile; productRef = 04825B4B2D4B6195002AA351 /* SwiftUIAppDesignAndAppNavigationModule */; };
 		0A071DDF2B68B3360030CBF4 /* ExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A071DDE2B68B3360030CBF4 /* ExampleApp.swift */; };
 		0A071DE12B68B3360030CBF4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A071DE02B68B3360030CBF4 /* ContentView.swift */; };
 		0A071DE32B68B3380030CBF4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A071DE22B68B3380030CBF4 /* Assets.xcassets */; };
@@ -39,8 +41,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04825B4C2D4B6195002AA351 /* SwiftUIAppDesignAndAppNavigationModule in Frameworks */,
 				0AD1B4C82B86788F00DB546A /* SwiftUIAppDesignAndAppNavigationModule in Frameworks */,
 				0AD1B4C52B86779100DB546A /* SwiftUIAppDesignAndAppNavigationModule in Frameworks */,
+				04825B492D4B60E1002AA351 /* SwiftUIAppDesignAndAppNavigationModule in Frameworks */,
 				0AD1B4C22B8674D500DB546A /* SwiftUIAppDesignAndAppNavigationModule in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -68,7 +72,6 @@
 		0A071DDD2B68B3360030CBF4 /* Example */ = {
 			isa = PBXGroup;
 			children = (
-				0A756B3D2B85AB8C00E06024 /* App */,
 				0A8E7CCF2B84A7A0007A5A6D /* Modules */,
 				0A071DDE2B68B3360030CBF4 /* ExampleApp.swift */,
 				0A071DE02B68B3360030CBF4 /* ContentView.swift */,
@@ -93,13 +96,6 @@
 			children = (
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		0A756B3D2B85AB8C00E06024 /* App */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = App;
 			sourceTree = "<group>";
 		};
 		0A756B3E2B85ABDB00E06024 /* Localize */ = {
@@ -148,6 +144,8 @@
 				0AD1B4C12B8674D500DB546A /* SwiftUIAppDesignAndAppNavigationModule */,
 				0AD1B4C42B86779100DB546A /* SwiftUIAppDesignAndAppNavigationModule */,
 				0AD1B4C72B86788F00DB546A /* SwiftUIAppDesignAndAppNavigationModule */,
+				04825B482D4B60E1002AA351 /* SwiftUIAppDesignAndAppNavigationModule */,
+				04825B4B2D4B6195002AA351 /* SwiftUIAppDesignAndAppNavigationModule */,
 			);
 			productName = Example;
 			productReference = 0A071DDB2B68B3360030CBF4 /* Example.app */;
@@ -179,7 +177,7 @@
 			);
 			mainGroup = 0A071DD22B68B3360030CBF4;
 			packageReferences = (
-				0AD1B4C62B86788F00DB546A /* XCLocalSwiftPackageReference ".." */,
+				04825B4A2D4B6195002AA351 /* XCLocalSwiftPackageReference "../../SwiftUIAppDesignAndAppNavigationModule" */,
 			);
 			productRefGroup = 0A071DDC2B68B3360030CBF4 /* Products */;
 			projectDirPath = "";
@@ -368,7 +366,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
@@ -406,7 +404,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
@@ -445,13 +443,21 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		0AD1B4C62B86788F00DB546A /* XCLocalSwiftPackageReference ".." */ = {
+		04825B4A2D4B6195002AA351 /* XCLocalSwiftPackageReference "../../SwiftUIAppDesignAndAppNavigationModule" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ..;
+			relativePath = ../../SwiftUIAppDesignAndAppNavigationModule;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		04825B482D4B60E1002AA351 /* SwiftUIAppDesignAndAppNavigationModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftUIAppDesignAndAppNavigationModule;
+		};
+		04825B4B2D4B6195002AA351 /* SwiftUIAppDesignAndAppNavigationModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftUIAppDesignAndAppNavigationModule;
+		};
 		0AD1B4C12B8674D500DB546A /* SwiftUIAppDesignAndAppNavigationModule */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SwiftUIAppDesignAndAppNavigationModule;

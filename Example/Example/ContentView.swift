@@ -22,7 +22,7 @@ struct ContentView: View {
             AppBottomSheetView(displayType: $displayStyle,
                                viewModel: BaseAppBottomSheetViewModel(disableDragToHideSheet: true)
             ) {
-                Color.blue
+                Color.blue.frame(height: 1000)
             } header: {
                 ZStack {
                     Color.red

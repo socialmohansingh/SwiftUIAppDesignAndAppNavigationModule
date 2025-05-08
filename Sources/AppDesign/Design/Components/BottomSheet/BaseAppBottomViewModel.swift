@@ -13,6 +13,7 @@ public enum BottomSheetDisplayType: Equatable {
     case expandFromTop(Double)
     case expandFromBottom(Double)
     case collapsed
+    case fullyCollapsed
     case hidden
 }
 
@@ -27,23 +28,27 @@ public class BaseAppBottomSheetViewModel: ObservableObject {
     @Published public var bottomSheetPadding: CGFloat
     @Published public var translationHeight: CGFloat
     @Published public var disableDragIndicatorView: Bool
+    @Published public var disableDragToFullyCollapsed: Bool
     @Published public var disableDragToHideSheet: Bool
     @Published public var disableDragToExpanded: Bool
     @Published public var disableDragIndicatorTapGesture: Bool
     @Published public var disableUpdateDisplayType: Bool
     @Published public var dragIndicatorConfig: BottomSheetConfiguration
     @Published public var lastMovement: SlideMovement = .up
+    @Published public var enableDrag: Bool = true
     
     public init(steps: [BottomSheetDisplayType] = [],
                 maxHeight: CGFloat = UIScreen.main.bounds.height - 60,
                 headerHeight: CGFloat? = nil,
                 bottomSheetPadding: CGFloat = 0,
-                translationHeight: CGFloat = 50,
+                translationHeight: CGFloat = 30,
                 disableDragToHideSheet: Bool = false,
                 disableDragToExpanded: Bool = false,
+                disableDragToFullyCollapsed: Bool = false,
                 disableDragIndicatorView: Bool = false,
                 disableDragIndicatorTapGesture: Bool = false,
                 disableUpdateDisplayType: Bool = false,
+                enableDrag: Bool = true,
                 dragIndicatorConfig: BottomSheetConfiguration = BottomSheetConfiguration()
     ) {
         self.steps = steps
@@ -57,6 +62,8 @@ public class BaseAppBottomSheetViewModel: ObservableObject {
         self.bottomSheetPadding = bottomSheetPadding
         self.headerHeight = headerHeight
         self.disableUpdateDisplayType = disableUpdateDisplayType
+        self.disableDragToFullyCollapsed = disableDragToFullyCollapsed
+        self.enableDrag = enableDrag
     }
 }
 

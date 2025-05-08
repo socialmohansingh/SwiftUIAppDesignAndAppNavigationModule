@@ -8,16 +8,16 @@
 import SwiftUI
 
 extension View {
-   @ViewBuilder public func appBottomSheet<Content: View, Header: View>(displayType: Binding<BottomSheetDisplayType>,
-                        viewModel: BaseAppBottomSheetViewModel = BaseAppBottomSheetViewModel(),
-                        @ViewBuilder content: @escaping () -> Content,
-                        @ViewBuilder header: @escaping () -> Header) -> some View {
-            GeometryReader { geometry in
-                GeometryReader { _ in
-                    self.padding(geometry.safeAreaInsets)
-                    BaseAppButtomSheet(displayType: displayType, viewModel: viewModel, content: content, header: header)
-                }.edgesIgnoringSafeArea(.all)
-            }
+    @ViewBuilder public func appBottomSheet<Content: View, Header: View>(displayType: Binding<BottomSheetDisplayType>,
+                                                                         viewModel: BaseAppBottomSheetViewModel = BaseAppBottomSheetViewModel(),
+                                                                         @ViewBuilder content: @escaping () -> Content,
+                                                                         @ViewBuilder header: @escaping () -> Header) -> some View {
+        GeometryReader { geometry in
+            GeometryReader { _ in
+                self.padding(geometry.safeAreaInsets)
+                BaseAppButtomSheet(displayType: displayType, viewModel: viewModel, content: content, header: header)
+            }.edgesIgnoringSafeArea(.all)
+        }
         
     }
 }
@@ -33,13 +33,13 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
     let delegate: BaseAppBottomSheetProtocol?
     
     public init(displayType: Binding<BottomSheetDisplayType>,
-         viewModel: BaseAppBottomSheetViewModel = BaseAppBottomSheetViewModel(),
-        delegate: BaseAppBottomSheetProtocol? = nil,
+                viewModel: BaseAppBottomSheetViewModel = BaseAppBottomSheetViewModel(),
+                delegate: BaseAppBottomSheetProtocol? = nil,
                 leftDragView: AnyView? = nil,
                 rightDragView: AnyView? = nil,
                 topHeader: TopHeader? = nil,
-         @ViewBuilder content: @escaping () -> Content,
-         @ViewBuilder header: @escaping () -> Header) {
+                @ViewBuilder content: @escaping () -> Content,
+                @ViewBuilder header: @escaping () -> Header) {
         self.displayType = displayType
         self.viewModel = viewModel
         self.content = content
@@ -54,7 +54,7 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
         GeometryReader { geometry in
             GeometryReader { _ in
                 Color.clear.padding(geometry.safeAreaInsets)
-                BaseAppButtomSheet(displayType: displayType, 
+                BaseAppButtomSheet(displayType: displayType,
                                    viewModel: viewModel,
                                    delegate: delegate,
                                    leftDragView: leftDragView,
@@ -68,40 +68,40 @@ public struct AppBottomSheetView<Header: View, Content: View>: View {
 }
 
 
-#Preview {
-    ZStack {
-        Color.orange.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-        Button("Title") {
-            print("asdf")
-        }
-        AppBottomSheetView(displayType: .constant(.collapsed), viewModel: BaseAppBottomSheetViewModel(
-            disableDragIndicatorView: false, dragIndicatorConfig: BottomSheetConfiguration(backgroundColor: .green)), rightDragView: AnyView(HStack {Spacer()
-                ZStack{}.frame(width: 10, height: 25).background(Color.blue)})) {
-                ZStack {
-                    Color.red
-                }.frame(height: 150)
-        } header: {
-            ZStack {
-                Color.red
-            }.frame(height: 150)
-        }
-    }
-
-}
-//
 //#Preview {
 //    ZStack {
-//        Color.red.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/ ).appBottomSheet(displayType: .constant(.collapsed), viewModel: BaseAppBottomSheetViewModel(steps: [.expandFromBottom(200), .expandFromBottom(400),.expandFromTop(100)])) {
-//            VStack {
-//                Text("asdf")
-//            }
-//        } header: {
-//            VStack {
-//                Text("111")
-//                Spacer()
-//            }.frame(height: 150)
+//        Color.orange.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+//        Button("Title") {
+//            print("asdf")
 //        }
-//
-//    }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-//
+//        AppBottomSheetView(displayType: .constant(.collapsed), viewModel: BaseAppBottomSheetViewModel(
+//            disableDragIndicatorView: false, dragIndicatorConfig: BottomSheetConfiguration(backgroundColor: .green)), rightDragView: AnyView(HStack {Spacer()
+//                ZStack{}.frame(width: 10, height: 25).background(Color.blue)})) {
+//                    ZStack {
+//                        Color.red
+//                    }.frame(height: 150)
+//                } header: {
+//                    ZStack {
+//                        Color.red
+//                    }.frame(height: 150)
+//                }
+//    }
+//    
 //}
+//
+#Preview {
+    ZStack {
+        Color.red.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/ ).appBottomSheet(displayType: .constant(.collapsed), viewModel: BaseAppBottomSheetViewModel(steps: [.expandFromBottom(200), .expandFromBottom(400),.expandFromTop(100)])) {
+            VStack {
+                Text("asdf")
+            }
+        } header: {
+            VStack {
+                Text("111")
+                Spacer()
+            }.frame(height: 150)
+        }
+
+    }.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+
+}
